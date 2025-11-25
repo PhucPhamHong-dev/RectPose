@@ -5,6 +5,19 @@ export default {
   theme: {
     extend: {
       colors: {
+        gw: {
+          bg: '#F5F6F8',
+          card: '#FFFFFF',
+          primary: '#10B981',
+          primaryDark: '#059669',
+          accent: '#0EA5E9',
+          indigo: '#6366F1',
+          danger: '#EF4444',
+          warning: '#F59E0B',
+          stroke: '#E5E7EB',
+          text: '#111827',
+          textMuted: '#374151',
+        },
         background: '#0b1324',
         surface: '#0f172a',
         panel: '#111827',

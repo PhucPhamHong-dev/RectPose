@@ -1,7 +1,7 @@
 import type { ButtonHTMLAttributes, PropsWithChildren } from 'react';
 import { cn } from '../../lib/utils';
 
-type Variant = 'primary' | 'ghost' | 'outline' | 'danger';
+type Variant = 'primary' | 'ghost' | 'accent' | 'danger';
 
 type ButtonProps = PropsWithChildren<
   ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -11,20 +11,21 @@ type ButtonProps = PropsWithChildren<
 
 const variantStyles: Record<Variant, string> = {
   primary:
-    'bg-gradient-to-r from-sky-500 to-cyan-300 text-slate-900 font-semibold border-transparent shadow-lg shadow-cyan-500/25',
+    'px-5 py-2.5 rounded-[10px] bg-[#10B981] text-white font-semibold shadow-[0_2px_4px_rgba(0,0,0,0.12)] hover:bg-[#0EA66F] active:scale-[0.98] transition border border-[#10B981]',
   ghost:
-    'bg-slate-800/60 text-slate-100 border border-slate-700 hover:border-slate-500 hover:bg-slate-800',
-  outline:
-    'bg-transparent text-slate-100 border border-slate-700 hover:border-cyan-300 hover:text-cyan-200',
-  danger: 'bg-red-600 text-white border border-red-500 hover:bg-red-500',
+    'px-5 py-2.5 rounded-[10px] bg-white text-[#374151] font-medium border-[1.5px] border-[#D1D5DB] hover:border-[#9CA3AF] hover:bg-slate-50 active:scale-[0.98] transition',
+  accent:
+    'px-5 py-2.5 rounded-[10px] bg-[#FEECE5] text-[#EB5A2A] font-semibold border-[1.5px] border-[#F8C7A2] hover:bg-[#FCD9C6] active:scale-[0.98] transition shadow-[0_2px_4px_rgba(0,0,0,0.08)]',
+  danger:
+    'px-5 py-2.5 rounded-[10px] bg-gw-danger text-white font-semibold hover:bg-gw-danger/90 active:scale-[0.98] transition border border-transparent shadow-[0_2px_4px_rgba(0,0,0,0.12)]',
 };
 
 export function Button({ children, className, variant = 'primary', disabled, ...rest }: ButtonProps) {
   return (
     <button
       className={cn(
-        'inline-flex h-11 items-center justify-center gap-2 rounded-lg px-4 text-sm transition-all duration-200',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300 focus-visible:ring-offset-0',
+        'inline-flex h-11 items-center justify-center gap-2 text-sm transition-all duration-200',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gw-accent focus-visible:ring-offset-0',
         variantStyles[variant],
         disabled && 'opacity-60 cursor-not-allowed',
         className,

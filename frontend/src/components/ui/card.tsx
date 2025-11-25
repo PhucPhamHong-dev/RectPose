@@ -12,21 +12,21 @@ export function Card({ className, children, title, description, action }: CardPr
   return (
     <div
       className={cn(
-        'rounded-xl border border-slate-800/80 bg-surface shadow-card backdrop-blur-sm',
-        'transition-colors duration-200',
+        'rounded-2xl bg-white shadow-[0_10px_30px_rgba(0,0,0,0.04)] border border-gw-stroke',
+        'transition-colors duration-200 p-5',
         className,
       )}
     >
       {(title || action) && (
-        <div className="flex items-start justify-between gap-3 border-b border-slate-800 px-4 py-3">
+        <div className="flex items-start justify-between gap-3 border-b border-gw-stroke pb-3">
           <div>
-            {title ? <p className="text-sm font-semibold text-slate-100">{title}</p> : null}
-            {description ? <p className="text-xs text-slate-400">{description}</p> : null}
+            {title ? <p className="text-sm font-semibold text-gw-text">{title}</p> : null}
+            {description ? <p className="text-xs text-gw-text/70">{description}</p> : null}
           </div>
           {action ? <div className="shrink-0">{action}</div> : null}
         </div>
       )}
-      <div className="p-4">{children}</div>
+      <div className="pt-3">{children}</div>
     </div>
   );
 }
