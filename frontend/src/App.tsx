@@ -55,6 +55,7 @@ function App() {
   const overlayRef = useRef<HTMLCanvasElement | null>(null);
   const captureRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const lastDetectionRef = useRef<string | null>(null);
 
   const [status, setStatus] = useState<Status>('idle');
   const [cameraActive, setCameraActive] = useState(false);
@@ -96,7 +97,7 @@ function App() {
     if (!result?.found || result.x_px == null || result.y_px == null) {
       ctx.fillStyle = 'rgba(226,232,240,0.7)';
       ctx.font = '14px "Inter", sans-serif';
-      ctx.fillText('No rectangle detected', 18, 26);
+      ctx.fillText('No object detected', 18, 26);
       return;
     }
 
@@ -145,6 +146,22 @@ function App() {
     return capture.toDataURL('image/jpeg', 0.85);
   }, []);
 
+  const logDetectionResult = (data: PoseResponse) => {
+    const isDetected = data.found && data.x_px != null && data.y_px != null;
+    const label = data.class_name?.trim() || 'object';
+    const stateKey = isDetected ? `found:${label}` : 'not_found';
+    if (stateKey === lastDetectionRef.current) return;
+
+    if (isDetected) {
+      const coords = `${data.x_px.toFixed(1)}, ${data.y_px.toFixed(1)}`;
+      const theta = data.theta_deg != null ? `, theta=${data.theta_deg.toFixed(1)}deg` : '';
+      pushLog(`Detected ${label} @ (${coords})${theta}`);
+    } else {
+      pushLog('No object detected');
+    }
+    lastDetectionRef.current = stateKey;
+  };
+
   const sendFrame = useCallback(async () => {
     if (!cameraActive || requestInFlight) return;
     const image = captureFrame();
@@ -163,9 +180,7 @@ function App() {
       drawOverlay(data);
       setPose(data);
       setLastUpdated(new Date().toLocaleTimeString());
-      if (!data.found) {
-        pushLog('No rectangle detected');
-      }
+      logDetectionResult(data);
       setStatus('streaming');
     } catch (err: any) {
       console.error(err);
@@ -199,6 +214,7 @@ function App() {
       setCameraActive(true);
       setCameraError(null);
       setStatus('streaming');
+      lastDetectionRef.current = null;
       pushLog('Camera started');
     } catch (err: any) {
       console.error(err);
@@ -215,13 +231,14 @@ function App() {
     }
     setCameraActive(false);
     setStatus('idle');
+    lastDetectionRef.current = null;
     drawOverlay(null);
     pushLog('Camera stopped');
   };
 
   const handleSendPose = async () => {
     if (!pose?.found || pose.x_px == null || pose.y_px == null || pose.theta_deg == null) {
-      pushLog('Cannot send: no rectangle detected');
+      pushLog('Cannot send: no object detected');
       return;
     }
     const enrichedPose = {
@@ -248,10 +265,12 @@ function App() {
   };
 
   const detectionStatus = pose?.found
-    ? 'Rectangle detected'
+    ? pose.class_name
+      ? `Detected: ${pose.class_name}`
+      : 'Object detected'
     : cameraError
     ? 'Camera not available'
-    : 'No rectangle detected';
+    : 'No object detected';
 
   const computedXmm = pose?.found && pose.x_px != null && mmScale ? pose.x_px * mmScale : pose?.x_mm ?? null;
   const computedYmm = pose?.found && pose.y_px != null && mmScale ? pose.y_px * mmScale : pose?.y_mm ?? null;
@@ -351,7 +370,7 @@ function App() {
                       const lower = log.message.toLowerCase();
                       const variant = lower.includes('error')
                         ? 'bg-red-100 text-red-700'
-                        : lower.includes('warn') || lower.includes('no rectangle')
+                        : lower.includes('warn') || lower.includes('no object')
                         ? 'bg-amber-100 text-amber-800'
                         : 'bg-emerald-100 text-emerald-700';
                       const dot =
